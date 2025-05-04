@@ -1,0 +1,63 @@
+# Dependency directories
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# WhatsApp session data
+session.json
+whatsapp/session.json
+.wwebjs_auth/
+whatsapp/.wwebjs_auth/
+.wwebjs_cache/
+whatsapp/.wwebjs_cache/
+whatsapp/session
+
+# Temporary files
+/temp/
+*.tmp
+*.temp
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Database files
+*.sqlite
+*.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build output
+/build/
+/dist/
+/out/
+
+# Backup files
+*.bak
+*.backup

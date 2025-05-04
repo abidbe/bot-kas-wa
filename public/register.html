@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pendaftaran Bot Keuangan WhatsApp</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h1>Pendaftaran Bot Keuangan WhatsApp</h1>
+          <p>Isi formulir di bawah ini untuk mendaftar ke layanan bot keuangan pribadi</p>
+        </div>
+
+        <div class="card-body">
+          <form id="registerForm">
+            <div class="form-group">
+              <label for="name">Nama Lengkap</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="phoneNumber">Nomor WhatsApp</label>
+              <div class="phone-input">
+                <span class="prefix">+62</span>
+                <input type="text" id="phoneNumber" name="phoneNumber" placeholder="8123456789" required />
+              </div>
+              <small>Masukkan nomor tanpa awalan +62, contoh: 8123456789</small>
+            </div>
+
+            <div class="form-group">
+              <label for="initialBalance">Saldo Awal (Rp)</label>
+              <input type="number" id="initialBalance" name="initialBalance" min="0" value="0" />
+            </div>
+
+            <div class="form-group">
+              <button type="submit" id="submitBtn">Daftar</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="result" class="hidden">
+          <div class="result-content">
+            <h2>Pendaftaran Berhasil!</h2>
+            <p>Silakan periksa WhatsApp Anda untuk kode verifikasi.</p>
+            <p>Gunakan perintah <code>/verifikasi [kode]</code> untuk memverifikasi akun.</p>
+          </div>
+        </div>
+
+        <div id="error" class="hidden">
+          <div class="error-content">
+            <h2>Terjadi Kesalahan</h2>
+            <p id="errorMessage"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="instructions">
+        <h2>Cara Menggunakan Bot</h2>
+        <ol>
+          <li>Daftar menggunakan formulir di atas</li>
+          <li>Anda akan menerima pesan selamat datang di WhatsApp</li>
+          <li>
+            Gunakan perintah berikut untuk mengelola keuangan Anda:
+            <ul>
+              <li><code>/tambah [jumlah] [kategori] [deskripsi]</code> - untuk mencatat pengeluaran</li>
+              <li><code>/masuk [jumlah] [kategori] [deskripsi]</code> - untuk mencatat pemasukan</li>
+              <li><code>/saldo</code> - untuk melihat saldo saat ini</li>
+              <li><code>/laporan</code> - untuk melihat laporan transaksi</li>
+              <li><code>/info</code> - untuk melihat semua perintah</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById("registerForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Memproses...";
+
+        const name = document.getElementById("name").value;
+        const rawPhoneNumber = document.getElementById("phoneNumber").value;
+        const initialBalance = document.getElementById("initialBalance").value;
+
+        // Format nomor telepon: tambahkan 62 di depan
+        const phoneNumber = "62" + rawPhoneNumber.replace(/^0+/, "");
+
+        try {
+          const response = await fetch("/api/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name,
+              phoneNumber,
+              initialBalance,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            document.getElementById("result").classList.remove("hidden");
+            document.getElementById("error").classList.add("hidden");
+            // Ubah teks pesan sukses
+            document.querySelector("#result .result-content h2").textContent = "Pendaftaran Berhasil!";
+            document.querySelector("#result .result-content p").textContent = "Silakan periksa WhatsApp Anda untuk informasi lebih lanjut!";
+            // Hapus kode verifikasi
+            document.querySelector("#result .result-content p:nth-child(3)").remove();
+            document.getElementById("registerForm").reset();
+          } else {
+            document.getElementById("error").classList.remove("hidden");
+            document.getElementById("result").classList.add("hidden");
+            document.getElementById("errorMessage").textContent = data.message;
+          }
+        } catch (error) {
+          document.getElementById("error").classList.remove("hidden");
+          document.getElementById("result").classList.add("hidden");
+          document.getElementById("errorMessage").textContent = "Terjadi kesalahan, silakan coba lagi nanti.";
+          console.error("Error:", error);
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Daftar";
+      });
+    </script>
+  </body>
+</html>
