@@ -1,0 +1,70 @@
+name: Deploy Node.js to cPanel
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "node_modules/**"
+      - "**.md"
+      - "**.git*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      # Install Dependencies
+      - name: Install Dependencies
+        run: npm install --production
+
+      # Create .env file from secrets
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=localhost" > .env
+          echo "DB_USER=abidbe_abidbe" >> .env
+          echo "DB_PASS=Qadx@RC,?YjB" >> .env
+          echo "DB_NAME=abidbe_wa_finance_bot" >> .env
+          echo "PORT=3000" >> .env
+          echo "NODE_ENV=production" >> .env
+          echo "SESSION_FILE_PATH=./whatsapp/session.json" >> .env
+
+      # Create temp directory for files
+      - name: Create temp directory
+        run: mkdir -p temp
+
+      # Deploy to cPanel
+      - name: Deploy to cPanel
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          password: ${{ secrets.CPANEL_PASSWORD }}
+          server-dir: ${{ secrets.CPANEL_NODE_APP_ROOT }}/
+          local-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.wwebjs_auth/**
+            **/.wwebjs_cache/**
+            **/whatsapp/.wwebjs_auth/**
+            **/whatsapp/.wwebjs_cache/**
+            **/whatsapp/session
+            **/session.json
+            **/.env.development
+            **/.env.test
+            **/.env.local
+            **/tests/**
+            **/.editorconfig
+            **/.gitattributes
+            **/.gitignore
+            **/README.md
+            **/package-lock.json
+          dangerous-clean-slate: false
